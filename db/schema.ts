@@ -1,0 +1,9 @@
+import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+export const users = sqliteTable('users', { id: text('id').primaryKey(), username: text('username').notNull().unique(), name: text('name').notNull(), password: text('password').notNull(), role: text('role').notNull(), active: integer('active').notNull().default(1) });
+export const sessions = sqliteTable('sessions', { token: text('token').primaryKey(), userId: text('user_id').notNull(), expires: integer('expires').notNull() });
+export const settings = sqliteTable('settings', { key: text('key').primaryKey(), value: text('value').notNull() });
+export const customers = sqliteTable('customers', { id: text('id').primaryKey(), eb: text('eb').notNull().unique(), assigned: text('assigned').notNull(), data: text('data').notNull(), version: integer('version').notNull().default(1), updated: text('updated').notNull() });
+export const events = sqliteTable('events', { id: text('id').primaryKey(), customerId: text('customer_id').notNull(), userId: text('user_id').notNull(), author: text('author').notNull(), kind: text('kind').notNull(), text: text('text').notNull(), created: text('created').notNull() });
+export const files = sqliteTable('files', { id: text('id').primaryKey(), customerId: text('customer_id').notNull(), name: text('name').notNull(), size: integer('size').notNull(), type: text('type').notNull(), created: text('created').notNull() });
+export const outbox = sqliteTable('outbox', { id: text('id').primaryKey(), recipient: text('recipient').notNull(), customerId: text('customer_id').notNull(), text: text('text').notNull(), state: text('state').notNull(), created: text('created').notNull() });
+export const attempts = sqliteTable('attempts', { key: text('key').primaryKey(), count: integer('count').notNull(), expires: integer('expires').notNull() });
