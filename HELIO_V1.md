@@ -50,3 +50,12 @@ Use “Explore the interactive demo” to inspect eight fictional customers. Sam
 Meaningful verification is recorded by `scripts/verify-crm.mjs`: account creation, role isolation, duplicate EB detection, stale-edit rejection, quotation access, approval prerequisites, workflow preservation, registration reminders, daily-summary deduplication and explicit unavailable integrations. It is intended for a fresh local test database only.
 
 Before staff rollout: confirm workflow/checklists with HR, connect the approved EB and WhatsApp services, arrange shared access, add account recovery/password changes and operational backup/retention policies. This is a reviewable v1, not a claim that these external services are already live.
+
+## Latest local revision
+Publication paused at the user's request; use http://127.0.0.1:5173/. The EB dialog now offers the exact billstatus.xhtml link, an EB-registered mobile field separate from WhatsApp, copy buttons, and pasted-summary extraction. This is a user-assisted import, not automatic retrieval. Explicit English phase/load/consumption labels are parsed without an AI model or paid API; missing values require manual review. The supplied reference customer details were not submitted or embedded. Only a readiness check was performed for this revision; the earlier 31 checks predate this import addition.
+
+
+## Business-first messaging update
+The quotation dialog prefers a configured Business API, uploads the selected private PDF to Meta media storage, and sends it with an approved document-header template. Configure WA_DOCUMENT_TEMPLATE alongside WA_TOKEN, WA_PHONE_ID, WA_TEMPLATE and webhook secrets; templates expect one body text variable. A WhatsApp Business mobile-app account by itself does not activate these integrations. Web fallback remains available and requires manual attachment and sending. No live API credentials were supplied, so live sending is unverified.
+Reply webhooks deduplicate message IDs and match quoted outbound messages, explicit EB references, or unique customer phone numbers. Ambiguous owner replies enter HR’s notification outbox for manual review. Delivery-status events appear in activity history. No reply automatically grants approval. Localhost needs an approved public HTTPS webhook endpoint before Meta can deliver events. Outbox notifications remain reviewed sends, not background auto-dispatch.
+

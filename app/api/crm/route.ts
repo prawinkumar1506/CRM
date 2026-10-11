@@ -1,3 +1,4 @@
+import {businessSend} from '../../../lib/whatsapp';
 import { env } from 'cloudflare:workers';
 import { db,hash,passwordHash,safeEqual,fail,clean,uid,iso,getUser,requireUser,admin,getSettings,customerAccess,event,queue,snapshot,validateCustomer,storeCustomer,allCustomers,daily,sendOutbox } from '../../../lib/server';
 import { applyWorkflow, normalizePhone, summary, today } from '../../../lib/model';
@@ -37,6 +38,8 @@ export async function POST(req:Request){try{const origin=req.headers.get('origin
   if(input.scope==='future'||input.scope==='all'){const settings=await getSettings();settings.defaultNames=names;await db().prepare("INSERT INTO settings(key,value) VALUES('workspace',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind(JSON.stringify(settings)).run()}return json(await snapshot(user));
  }
  if(action==='queue'){const c=await customerAccess(input.customerId,user);const text=clean(input.text,6000);const phone=normalizePhone(clean(input.phone,20));if(!text||!/^\d{10,15}$/.test(phone))fail('Add a recipient number and message first.');await db().prepare('INSERT INTO outbox(id,recipient,customer_id,text,state,created) VALUES(?,?,?,?,?,?)').bind(uid(),phone,c.id,text,'draft',iso()).run();await event(c.id,user,'WhatsApp message prepared. Sending must be confirmed in WhatsApp.','message');return json(await snapshot(user))}
+ if(action==='businessReport'){admin(user);const text=summary(await allCustomers(user));if(text.length>900)fail('This full report exceeds the configured template size. Use Copy summary or WhatsApp Web for now.');const id=uid();await queue(text,'',id);await sendOutbox(id);return json(await snapshot(user))}
+ if(action==='businessMessage'){const c=await customerAccess(input.customerId,user);const phone=normalizePhone(clean(input.phone,20));if(!/^\d{10,15}$/.test(phone))fail('Enter a valid recipient number.');await businessSend(c,user,phone,clean(input.text,6000),clean(input.fileId),clean(input.requestId));return json(await snapshot(user))}
  if(action==='send'){admin(user);await sendOutbox(clean(input.id));return json(await snapshot(user))}
  if(action==='markSent'){admin(user);await db().prepare("UPDATE outbox SET state='sent manually' WHERE id=? AND state!='sent'").bind(clean(input.id)).run();return json(await snapshot(user))}
  if(action==='ebLookup')fail('Live EB lookup is not connected. The public portal requires a registered mobile number and CAPTCHA. Open the official portal and record verified phase/load below.',409);
